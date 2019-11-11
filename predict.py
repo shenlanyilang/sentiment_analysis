@@ -6,6 +6,8 @@ from keras.models import load_model
 import os
 import gc
 import numpy as np
+from keras import backend as K
+import tensorflow as tf
 
 
 class Predict(object):
@@ -26,11 +28,16 @@ class Predict(object):
         features = self.processor.get_features(data)
         pred_map = {}
         for label in self.labels:
+            # K.clear_session()
             model = load_model(os.path.join('./save_model', label + '.krs.save_model'))
             prob_pred = model.predict(features)
             grade = self._prob2grade(prob_pred)
+            print('{} grade : {}'.format(label,grade))
             pred_map[label] = grade
-            del model
+            K.clear_session()
+            tf.reset_default_graph()
+            # del model
+            # gc.collect()
         gc.collect()
         return pred_map
 
